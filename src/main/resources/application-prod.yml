@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://43.139.225.115:3306/user_center
+    username: oras
+    password: 20020702
+  #session失效时间
+  session:
+    timeout: 86400
+
+
+
+
+
+
