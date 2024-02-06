@@ -1,11 +1,14 @@
 package com.oras.usercenter.service;
 
 import com.oras.usercenter.model.domain.User;
+import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * 用户服务测试
@@ -68,5 +71,24 @@ class UserServiceTest {
 
 
 
+    }
+
+    @Test
+    void userLogin() {
+    }
+
+    @Test
+    void getSafetyUser() {
+    }
+
+    @Test
+    void userLogout() {
+    }
+
+    @Test
+    void searchUsersByTags() {
+        List<String> tagNameList = Arrays.asList("Java","Python");
+        List<User> userList = userService.searchUsersByTags(tagNameList);
+        Assert.assertNotNull(userList);
     }
 }

@@ -17,7 +17,7 @@ public class User implements Serializable {
      *
      */
     @TableId(type = IdType.AUTO)
-    private Long id;
+    private long id;
 
     /**
      * 用户昵称
@@ -86,6 +86,11 @@ public class User implements Serializable {
      * 编号
      */
     private String code;
+
+    /**
+     * 标签json列表
+     */
+    private String tags;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

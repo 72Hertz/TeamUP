@@ -3,6 +3,7 @@ package com.oras.usercenter.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.oras.usercenter.model.domain.User;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
 * @author endymion
@@ -45,4 +46,40 @@ public interface UserService extends IService<User> {
      * @return
      */
     int userLogout(HttpServletRequest request);
+
+    /**
+     * 根据用户标签查询用户
+     * @param tagNameList
+     * @return
+     */
+    List<User> searchUsersByTags(List<String> tagNameList);
+
+
+
+
+    /**
+     * 更新用户信息
+     * @param user
+     * @return
+     */
+    int updateUser(User user, User loginUser);
+
+
+    /**
+     * 获取当前登录用户信息
+     * @return
+     */
+    User getLoginUser(HttpServletRequest request);
+
+
+    /**
+     * 是否为管理员
+     * @param request
+     * @return true为管理员，false为普通用户
+     */
+    boolean isAdmin(HttpServletRequest request);
+    boolean isAdmin(User loginUser);
+
+
+
 }
