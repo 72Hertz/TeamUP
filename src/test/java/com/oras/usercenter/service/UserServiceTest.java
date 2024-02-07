@@ -22,9 +22,9 @@ class UserServiceTest {
     @Test
     void testAddUser() {
         User user = new User();
-        user.setUsername("testuser");
+        user.setUsername("testuser2");
         user.setUserAccount("123");
-        user.setAvatarUrl("https://baomidou.com/img/logo.svg");
+        user.setAvatarUrl("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdID5oiBcQb6vyPCTi53zY49h7mUva2NV4Tk8fVVdC-0UYH-TtkuhX&usqp=CAE&s");
         user.setGender(0);
         user.setUserPassword("xxx");
         user.setPhone("123");
