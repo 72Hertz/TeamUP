@@ -12,6 +12,7 @@ import com.oras.usercenter.model.dto.TeamQuery;
 import com.oras.usercenter.model.request.TeamAddRequest;
 import com.oras.usercenter.model.request.UserLoginRequest;
 import com.oras.usercenter.model.request.UserRegisterRequest;
+import com.oras.usercenter.model.vo.TeamUserVO;
 import com.oras.usercenter.service.TeamService;
 import com.oras.usercenter.service.UserService;
 import jodd.bean.BeanUtil;
@@ -98,20 +99,27 @@ public class TeamController {
 
     }
 
+//    @GetMapping("/list")
+//    public BaseResponse<List<Team>> listTeam(TeamQuery teamQuery){
+//        if(teamQuery == null){
+//            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+//
+//        }
+//        Team team = new Team();
+//        BeanUtils.copyProperties(team, teamQuery);
+//        QueryWrapper<Team> queryWrapper = new QueryWrapper<>();
+//        List<Team> teamList = teamService.list(queryWrapper);
+//        return ResultUtils.success(teamList);
+//    }
     @GetMapping("/list")
-    public BaseResponse<List<Team>> listTeam(TeamQuery teamQuery){
+    public BaseResponse<List<TeamUserVO>> listTeam(TeamQuery teamQuery, HttpServletRequest request){
         if(teamQuery == null){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
 
         }
-        Team team = new Team();
-        BeanUtils.copyProperties(team, teamQuery);
-
-        QueryWrapper<Team> queryWrapper = new QueryWrapper<>();
-        List<Team> teamList = teamService.list(queryWrapper);
+        boolean isAdmin = userService.isAdmin(request);
+        List<TeamUserVO> teamList = teamService.listTeam(teamQuery,isAdmin);
         return ResultUtils.success(teamList);
-
-
     }
 
     @GetMapping("/list/page")

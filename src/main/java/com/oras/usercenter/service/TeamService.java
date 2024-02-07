@@ -3,6 +3,10 @@ package com.oras.usercenter.service;
 import com.oras.usercenter.model.domain.Team;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.oras.usercenter.model.domain.User;
+import com.oras.usercenter.model.dto.TeamQuery;
+import com.oras.usercenter.model.vo.TeamUserVO;
+
+import java.util.List;
 
 /**
 * @author endymion
@@ -19,4 +23,10 @@ public interface TeamService extends IService<Team> {
      */
     long addTeam(Team team, User loginUser);
 
+    /**
+     * 搜索队伍
+     * @param teamQuery
+     * @return
+     */
+    List<TeamUserVO> listTeam(TeamQuery teamQuery, boolean isAdmin);
 }

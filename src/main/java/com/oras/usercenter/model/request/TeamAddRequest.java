@@ -8,7 +8,7 @@ import java.util.Date;
 /**
  * 用户添加队伍请求体
  *
- * @author yupi
+ * @author oras
  */
 @Data
 public class TeamAddRequest implements Serializable {
