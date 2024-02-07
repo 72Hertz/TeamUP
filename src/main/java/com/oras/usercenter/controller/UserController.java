@@ -9,6 +9,7 @@ import com.oras.usercenter.exception.BusinessException;
 import com.oras.usercenter.model.domain.User;
 import com.oras.usercenter.model.request.UserLoginRequest;
 import com.oras.usercenter.model.request.UserRegisterRequest;
+import com.oras.usercenter.service.TeamService;
 import com.oras.usercenter.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
