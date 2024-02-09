@@ -4,6 +4,8 @@ import com.oras.usercenter.model.domain.Team;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.oras.usercenter.model.domain.User;
 import com.oras.usercenter.model.dto.TeamQuery;
+import com.oras.usercenter.model.request.TeamJoinRequest;
+import com.oras.usercenter.model.request.TeamUpdateRequest;
 import com.oras.usercenter.model.vo.TeamUserVO;
 
 import java.util.List;
@@ -29,4 +31,18 @@ public interface TeamService extends IService<Team> {
      * @return
      */
     List<TeamUserVO> listTeam(TeamQuery teamQuery, boolean isAdmin);
+
+    /**
+     * 更新队伍
+     * @param teamUpdateRequest
+     * @return
+     */
+    boolean updateTeam(TeamUpdateRequest teamUpdateRequest, User loginUser);
+
+    /**
+     * 用户加入队伍
+     * @param teamJoinRequest
+     * @return
+     */
+    boolean joinTeam(TeamJoinRequest teamJoinRequest, User loginUser);
 }
