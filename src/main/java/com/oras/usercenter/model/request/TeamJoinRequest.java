@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 用户添加队伍请求体
+ * 用户加入队伍请求体
  *
  * @author oras
  */
