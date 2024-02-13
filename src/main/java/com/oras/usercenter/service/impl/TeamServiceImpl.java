@@ -25,10 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
 * @author endymion
@@ -162,17 +159,147 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
             if(userId !=null && userId >0){
                 queryWrapper.eq("userId",userId);
             }
+
             //根据队伍状态查询
             Integer status = teamQuery.getStatus();
+            //获得当前队伍的状态
             TeamStatusEnum statusEnum = TeamStatusEnum.getEnumByValue(status);
+
+//            if(statusEnum == null){
+//                statusEnum = TeamStatusEnum.SECRET;
+//            }
+//            if (!isAdmin && statusEnum.equals(TeamStatusEnum.PRIVATE)) {
+//                throw new BusinessException(ErrorCode.NO_AUTH);
+//            }
+//            queryWrapper.eq("status",statusEnum.getValue());
+
+
+
+            //如果查询参数中队伍状态为空则应该显示出公开的和加密的队伍
             if(statusEnum == null){
-                statusEnum = TeamStatusEnum.PUBLIC;
-            }
-            if(!isAdmin && !statusEnum.equals(TeamStatusEnum.PUBLIC)){
-                throw new BusinessException(ErrorCode.NO_AUTH);
+                queryWrapper.in("status", Arrays.asList(TeamStatusEnum.PUBLIC.getValue(), TeamStatusEnum.SECRET.getValue()));
+            }else {
+                if(!isAdmin && (statusEnum.equals(TeamStatusEnum.PRIVATE))){
+                    throw new BusinessException(ErrorCode.NO_AUTH);
+                }else {
+                    queryWrapper.eq("status",statusEnum.getValue());
+                }
             }
 
-            queryWrapper.eq("status",statusEnum.getValue());
+
+
+//            queryWrapper.eq("status",statusEnum.getValue());
+
+
+
+        }
+
+        //不展示已过期队伍
+        queryWrapper.and( qw -> qw.gt("expireTime", new Date()).or().isNull("expireTime"));
+
+
+        List<Team> teamList = this.list(queryWrapper);
+
+        //关联查询创建人用户信息
+        //TODO 关联查询队伍成员信息
+        List<TeamUserVO> teamUserVOList = new ArrayList<>();
+        if(CollectionUtils.isEmpty(teamList)){
+            return new ArrayList<>();
+        }
+        for(Team team : teamList){
+            Long userId = team.getUserId();
+            if(userId == null){
+                continue;
+            }
+            User user = userService.getById(userId);
+            //脱敏用户信息
+            TeamUserVO teamUserVO = new TeamUserVO();
+            BeanUtils.copyProperties(team,teamUserVO);
+
+            if(user != null){
+                UserVO userVO = new UserVO();
+                BeanUtils.copyProperties(user,userVO);
+                teamUserVO.setCreateUser(userVO);
+            }
+
+            teamUserVOList.add(teamUserVO);
+
+        }
+
+        return teamUserVOList;
+    }
+
+    @Override
+    public List<TeamUserVO> listTeamMy(TeamQuery teamQuery, boolean isAdmin) {
+        QueryWrapper<Team> queryWrapper = new QueryWrapper<>();
+        if(teamQuery != null){
+            //根据队伍id查询
+            Long id = teamQuery.getId();
+            if(id != null && id> 0){
+                queryWrapper.eq("id",id);
+            }
+            //根据队伍中成员查询
+            List<Long> idList = teamQuery.getIdList();
+            if (CollectionUtils.isNotEmpty(idList)) {
+                queryWrapper.in("id", idList);
+            }
+            //同时在队伍名称和队伍描述中查询
+            String searchText = teamQuery.getSearchText();
+            if(StringUtils.isNotBlank(searchText)){
+                queryWrapper.and(qw -> qw.like("name",searchText).like("description",searchText));
+            }
+            //根据队伍名称查询
+            String name = teamQuery.getName();
+            if(StringUtils.isNotBlank(name)){
+                queryWrapper.like("name",name);
+            }
+            //根据队伍描述查询
+            String description = teamQuery.getDescription();
+            if(StringUtils.isNotBlank(description)){
+                queryWrapper.like("description",description);
+            }
+            Integer maxNum = teamQuery.getMaxNum();
+            //根据最大人数查询
+            if(maxNum != null && maxNum>0){
+                queryWrapper.eq("maxNum",maxNum);
+            }
+            //根据队长id查询
+            Long userId = teamQuery.getUserId();
+            if(userId !=null && userId >0){
+                queryWrapper.eq("userId",userId);
+            }
+
+            //根据队伍状态查询
+            Integer status = teamQuery.getStatus();
+            //获得当前队伍的状态
+            TeamStatusEnum statusEnum = TeamStatusEnum.getEnumByValue(status);
+
+//            if(statusEnum == null){
+//                statusEnum = TeamStatusEnum.SECRET;
+//            }
+//            if (!isAdmin && statusEnum.equals(TeamStatusEnum.PRIVATE)) {
+//                throw new BusinessException(ErrorCode.NO_AUTH);
+//            }
+//            queryWrapper.eq("status",statusEnum.getValue());
+
+
+
+            //如果查询参数中队伍状态为空则应该显示出公开的和加密的队伍
+            if(statusEnum == null){
+                queryWrapper.in("status", Arrays.asList(TeamStatusEnum.PUBLIC.getValue(), TeamStatusEnum.SECRET.getValue(), TeamStatusEnum.PRIVATE.getValue()));
+            }else {
+                if(!isAdmin && (statusEnum.equals(TeamStatusEnum.PRIVATE))){
+                    throw new BusinessException(ErrorCode.NO_AUTH);
+                }else {
+                    queryWrapper.eq("status",statusEnum.getValue());
+                }
+            }
+
+
+
+//            queryWrapper.eq("status",statusEnum.getValue());
+
+
 
         }
 
