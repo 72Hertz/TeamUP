@@ -3,13 +3,18 @@ package com.oras.usercenter.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.gson.Gson;
+import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.oras.usercenter.common.ErrorCode;
 import com.oras.usercenter.exception.BusinessException;
 import com.oras.usercenter.model.domain.User;
+import com.oras.usercenter.model.vo.UserVO;
 import com.oras.usercenter.service.UserService;
 import com.oras.usercenter.mapper.UserMapper;
+import com.oras.usercenter.utils.AlgorithmUtils;
+import javafx.util.Pair;
 import lombok.extern.slf4j.Slf4j;
+import net.bytebuddy.description.method.MethodDescription;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -17,16 +22,15 @@ import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.oras.usercenter.constant.UserConstant.ADMIN_ROLE;
 import static com.oras.usercenter.constant.UserConstant.USER_LOGIN_STATE;
+
 
 /**
 * @author endymion
@@ -280,6 +284,70 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public boolean isAdmin(User loginUser){
         return loginUser != null && loginUser.getUserRole() == ADMIN_ROLE;
+    }
+
+    @Override
+    public List<User> matchUser(long num, User loginUser) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select("id","tags");
+        queryWrapper.isNotNull("tags");
+        List<User> userList = this.list(queryWrapper);
+
+
+
+        //1.获取当前用户的标签
+        //将字符串转化为list
+        String tags = loginUser.getTags();
+        Gson gson = new Gson();
+        List<String> tagList = gson.fromJson(tags, new TypeToken<List<String>>() {
+        }.getType());
+
+        List<Pair<User, Long>> list = new ArrayList<>();
+        //<key:用户列表下标，value:相似度>
+//        SortedMap<Integer, Long> indexDistanceMap = new TreeMap<>();
+
+        //2.遍历计算所有用户标签与当前用户相似度
+
+        for (int i = 0; i < userList.size(); i++) {
+            User user = userList.get(i);
+            String userTags = user.getTags();
+            //无标签或用户自己
+            if( StringUtils.isBlank(userTags) || user.getId() == loginUser.getId() ){
+                continue;
+            }
+            //计算当前用户与列表中用户的相似度
+            List<String> userTagList = gson.fromJson(userTags, new TypeToken<List<String>>() {
+            }.getType());
+            long distance = AlgorithmUtils.minDistance(tagList, userTagList);
+//            indexDistanceMap.put(i, distance);
+            list.add(new Pair<>(user,distance));
+        }
+
+        //按编辑距离升序排序（相似度降序）
+        List<Pair<User, Long>> topUserPairList = list.stream().sorted((a,b)->(int)(a.getValue() - b.getValue())).limit(num).collect(Collectors.toList());
+
+        //3. 取出用户对象列表
+        List<Long> userIdList = topUserPairList.stream().map(pair -> pair.getKey().getId()).collect(Collectors.toList());
+
+        //查询用户详细信息
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.in("id",userIdList);
+
+        Map<Long, List<User>> userIdUserListMap = this.list(userQueryWrapper).stream()
+                .map(user -> getSafetyUser(user))
+                .collect(Collectors.groupingBy(User::getId));
+        List<User> users = this.list(userQueryWrapper).stream().map( user -> getSafetyUser(user)).collect(Collectors.toList());
+
+        // 查询导致打乱顺序，根据有序的userID列表赋值
+        List<User> finalUserList = new ArrayList<>();
+        for (Long userId : userIdList){
+            finalUserList.add(userIdUserListMap.get(userId).get(0));
+        }
+        return finalUserList;
+
+
+
+
     }
 
 

@@ -1,7 +1,10 @@
 package com.oras.usercenter.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.oras.usercenter.common.BaseResponse;
 import com.oras.usercenter.model.domain.User;
+import com.oras.usercenter.model.vo.UserVO;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -24,7 +27,6 @@ public interface UserService extends IService<User> {
     long userRegister(String userAccount, String userPassword, String checkPassword, String code);
 
     /**
-     * @param checkPassword 校验密码
      * @param userAccount   用户账户
      * @param userPassword  用户密码
      * @param requset
@@ -81,5 +83,11 @@ public interface UserService extends IService<User> {
     boolean isAdmin(User loginUser);
 
 
-
+    /**
+     * 匹配用户
+     * @param num
+     * @param user
+     * @return
+     */
+    List<User> matchUser(long num, User user);
 }

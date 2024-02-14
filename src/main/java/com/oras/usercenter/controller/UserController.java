@@ -9,6 +9,7 @@ import com.oras.usercenter.exception.BusinessException;
 import com.oras.usercenter.model.domain.User;
 import com.oras.usercenter.model.request.UserLoginRequest;
 import com.oras.usercenter.model.request.UserRegisterRequest;
+import com.oras.usercenter.model.vo.UserVO;
 import com.oras.usercenter.service.TeamService;
 import com.oras.usercenter.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -177,6 +178,23 @@ public class UserController {
         User loginUser = userService.getLoginUser(request);
         int result = userService.updateUser(user,loginUser);
         return ResultUtils.success(result);
+    }
+
+    /**
+     * 获取最匹配用户
+     * @param pageSize
+     * @param pageNum
+     * @param request
+     * @return
+     */
+    @GetMapping("/match")
+    public BaseResponse<List<User>> matchUsers(long num, HttpServletRequest request ){
+        if(num <= 0 || num > 20){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User user = userService.getLoginUser(request);
+        return ResultUtils.success(userService.matchUser(num,user));
+
     }
 
 
