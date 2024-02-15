@@ -165,30 +165,26 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
             //获得当前队伍的状态
             TeamStatusEnum statusEnum = TeamStatusEnum.getEnumByValue(status);
 
-//            if(statusEnum == null){
-//                statusEnum = TeamStatusEnum.SECRET;
-//            }
-//            if (!isAdmin && statusEnum.equals(TeamStatusEnum.PRIVATE)) {
-//                throw new BusinessException(ErrorCode.NO_AUTH);
-//            }
-//            queryWrapper.eq("status",statusEnum.getValue());
+            if(statusEnum == null){
+                statusEnum = TeamStatusEnum.PUBLIC;
+            }
+            if (!isAdmin && statusEnum.equals(TeamStatusEnum.PRIVATE)) {
+                throw new BusinessException(ErrorCode.NO_AUTH);
+            }
+            queryWrapper.eq("status",statusEnum.getValue());
 
 
 
             //如果查询参数中队伍状态为空则应该显示出公开的和加密的队伍
-            if(statusEnum == null){
-                queryWrapper.in("status", Arrays.asList(TeamStatusEnum.PUBLIC.getValue(), TeamStatusEnum.SECRET.getValue()));
-            }else {
-                if(!isAdmin && (statusEnum.equals(TeamStatusEnum.PRIVATE))){
-                    throw new BusinessException(ErrorCode.NO_AUTH);
-                }else {
-                    queryWrapper.eq("status",statusEnum.getValue());
-                }
-            }
-
-
-
-//            queryWrapper.eq("status",statusEnum.getValue());
+//            if(statusEnum == null){
+//                queryWrapper.in("status", Arrays.asList(TeamStatusEnum.PUBLIC.getValue(), TeamStatusEnum.SECRET.getValue()));
+//            }else {
+//                if(!isAdmin && (statusEnum.equals(TeamStatusEnum.PRIVATE))){
+//                    throw new BusinessException(ErrorCode.NO_AUTH);
+//                }else {
+//                    queryWrapper.eq("status",statusEnum.getValue());
+//                }
+//            }
 
 
 
